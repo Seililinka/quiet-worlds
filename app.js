@@ -1,0 +1,45 @@
+import {Forest,formatClock,SPECIES} from './engine.js';
+import {ForestAudio} from './audio.js';
+import {ForestRenderer} from './renderer.js';
+const $=id=>document.getElementById(id);const STORAGE='forest-world-v1';let stored=null;try{stored=JSON.parse(localStorage.getItem(STORAGE));}catch{}
+const forest=new Forest(stored?.world);const renderer=new ForestRenderer($('world'),forest);let enabled=false,busy=false,last=0,lastUi=0,lastSave=0,lastEvent=0,selectionTimer;const speeds=[.5,1,2,4];
+const audio=new ForestAudio((running,error)=>{enabled=running;updateSound();if(error)$('audio-note').textContent=error;});
+const volume=Number.isFinite(stored?.volume)?Math.min(100,Math.max(0,stored.volume)):45;$('volume').value=volume;audio.setVolume(volume/100);
+renderer.ready.then(()=>{$('scene-loading').hidden=true;renderer.render();}).catch(()=>{$('scene-loading').textContent='Не удалось загрузить поляну. Обнови страницу.';});
+function save(){try{localStorage.setItem(STORAGE,JSON.stringify({world:forest.snapshot(),volume:Number($('volume').value)}));}catch{}}
+function updateSound(){$('listen').setAttribute('aria-pressed',String(enabled));$('listen-text').textContent=enabled?'Выключить звук':audio.enabled?'Продолжить слушать':'Слушать лес';$('audio-note').textContent=enabled?'Прислушайся к перекличке. Каждый голос принадлежит птице.':forest.paused?'Лес замер. Нажми «Продолжить», чтобы он снова ожил.':'Звук включается касанием. Лучше слушать в наушниках.';}
+function rangeFill(input){input.style.setProperty('--fill',((input.value-input.min)/(input.max-input.min)*100)+'%');}
+function updateVolume(){$('volume-value').textContent=$('volume').value+'%';audio.setVolume(Number($('volume').value)/100);rangeFill($('volume'));}
+function setSpeed(value){forest.speed=speeds[value];$('speed').value=value;$('speed-value').textContent=['Медленный','Обычный','Быстрый','Очень быстрый'][value];rangeFill($('speed'));save();}
+function updateUi(){
+  $('clock').textContent=formatClock(forest.time);$('period').textContent=forest.period;$('awake-count').textContent=forest.awake;
+  const dark=forest.night>.72;const rain=forest.rain>.3;const fog=forest.fog>.35;
+  $('scene-label').textContent=forest.paused?'Мир на паузе':rain?'Лес слушает дождь':dark?'Светлячки проснулись':forest.period==='Рассвет'?'Лес просыпается':forest.period==='Закат'?'Лес встречает вечер':'У каждого своя жизнь';
+  $('world-summary').textContent=forest.paused?'Мир замер. Можно задержаться в этом мгновении.':rain?'Дождь шуршит по хвое. Птицы пережидают его под ветками.':dark?'Птицы спят. Сова зовёт из чащи, а над травой загораются светлячки.':fog?'Туман укутывает поляну. Издалека доносятся редкие голоса.':forest.period==='Рассвет'?'Птицы просыпаются, зовут соседей и отвечают на знакомые голоса.':forest.period==='Закат'?'Солнце садится. Птичьи голоса становятся всё реже.':'Птицы перелетают между деревьями. У ручья тихо журчит вода.';
+  $('weather-description').textContent=rain?'Идёт дождь':fog?'Лёгкий туман':dark?'Ясная ночь':forest.wind>.25?'Лёгкий ветер':'Тихо и ясно';$('weather-symbol').textContent=rain?'☂':fog?'≋':dark?'☾':'☀';
+  $('time-flow').textContent=forest.paused?'на паузе':'день идёт сам';$('weather-mode-label').textContent=forest.weatherMode==='auto'?'меняется сама':'твой выбор';
+  document.body.classList.toggle('is-night',forest.night>.58);document.body.classList.toggle('is-paused',forest.paused);document.documentElement.style.setProperty('--night',String(forest.night));
+  document.querySelectorAll('[data-time]').forEach(b=>{const periods={'6.3':'Рассвет','12':'День','18.5':'Закат','23':'Ночь'},selected=periods[b.dataset.time]===forest.period;b.classList.toggle('selected',selected);b.setAttribute('aria-pressed',String(selected));});
+  document.querySelectorAll('[data-weather]').forEach(b=>{const selected=b.dataset.weather===forest.weatherMode;b.classList.toggle('selected',selected);b.setAttribute('aria-pressed',String(selected));});
+  if(forest.eventId!==lastEvent){lastEvent=forest.eventId;const fragment=document.createDocumentFragment();forest.events.slice(0,4).forEach(e=>{const li=document.createElement('li'),time=document.createElement('time'),text=document.createElement('span');time.textContent=formatClock(e.time);text.textContent=e.text;li.append(time,text);fragment.append(li);});$('events').replaceChildren(fragment);}
+}
+function chooseTime(hours){forest.setTime(hours);audio.clear();audio.setEnvironment(forest);updateUi();save();}
+function chooseWeather(weather){forest.setWeather(weather);updateUi();save();}
+async function setPaused(paused){forest.paused=paused;$('pause').setAttribute('aria-pressed',String(paused));$('pause').querySelector('span').textContent=paused?'Продолжить':'Замереть';$('pause').querySelector('path').setAttribute('d',paused?'m8 5 10 7-10 7V5Z':'M8 5v14M16 5v14');await audio.setPaused(paused);updateUi();updateSound();}
+$('listen').addEventListener('click',async()=>{if(busy)return;busy=true;$('listen').disabled=true;try{if(enabled)await audio.disable();else{if(forest.paused)await setPaused(false);await audio.enable();forest.call();}}catch(error){$('audio-note').textContent=error.message||'Не удалось включить звук. Нажми ещё раз.';}finally{busy=false;$('listen').disabled=false;}});
+$('pause').addEventListener('click',()=>{void setPaused(!forest.paused);});
+$('volume').addEventListener('input',()=>{updateVolume();save();});
+$('speed').addEventListener('input',()=>setSpeed(Number($('speed').value)));
+document.querySelectorAll('[data-time]').forEach(b=>b.addEventListener('click',()=>chooseTime(Number(b.dataset.time))));
+document.querySelectorAll('[data-weather]').forEach(b=>b.addEventListener('click',()=>chooseWeather(b.dataset.weather)));
+$('call-birds').addEventListener('click',()=>{forest.call();updateUi();});
+$('world').addEventListener('pointerup',event=>{const p=renderer.pointer(event.clientX,event.clientY);forest.call(p.x,p.y);const bird=forest.birds.filter(b=>b.state!=='sleeping').sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0];if(bird&&Math.hypot(bird.x-p.x,bird.y-p.y)<.09){$('scene-selected').textContent=SPECIES[bird.species].name+' · '+({perched:'слушает лес',singing:'поёт',flying:'перелетает',shelter:'прячется от дождя',foraging:'ищет корм'})[bird.state];$('scene-selected').hidden=false;clearTimeout(selectionTimer);selectionTimer=setTimeout(()=>$('scene-selected').hidden=true,3000);}updateUi();});
+$('about-toggle').addEventListener('click',()=>{const expanded=$('about-toggle').getAttribute('aria-expanded')!=='true';$('about-toggle').setAttribute('aria-expanded',String(expanded));$('about').hidden=!expanded;$('about-toggle').querySelector('span').textContent=expanded?'−':'+';});
+document.addEventListener('visibilitychange',()=>{last=0;save();void audio.setHidden(document.hidden);});window.addEventListener('pagehide',save);
+function frame(timestamp){if(!document.hidden){const dt=last?Math.min((timestamp-last)/1000,.1):0;forest.tick(dt);for(const event of forest.drain())audio.song(event);renderer.render();if(timestamp-lastUi>250){updateUi();audio.setEnvironment(forest);lastUi=timestamp;}if(timestamp-lastSave>8000){save();lastSave=timestamp;}}last=timestamp;requestAnimationFrame(frame);}
+updateVolume();setSpeed(Math.max(0,speeds.indexOf(forest.speed)));updateUi();requestAnimationFrame(frame);
+
+// Feature-detected WebMCP uses the very same actions as the visible controls.
+if(document.modelContext?.registerTool){const lifecycle=new AbortController();const register=tool=>{try{void Promise.resolve(document.modelContext.registerTool(tool,{signal:lifecycle.signal})).catch(()=>{});}catch{}};const state=()=>({time:formatClock(forest.time),period:forest.period,weather:forest.weather,weatherMode:forest.weatherMode,paused:forest.paused,awakeBirds:forest.awake,soundEnabled:enabled});
+  register({name:'read_forest',title:'Состояние леса',description:'Read the current forest time, weather, inhabitants and pause state.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true},execute:()=>state()});
+  register({name:'configure_forest',title:'Изменить время или погоду',description:'Set the same time and weather controls visible on this page. Does not enable sound.',inputSchema:{type:'object',properties:{hour:{type:'number',minimum:0,maximum:23.99},weather:{type:'string',enum:['auto','clear','rain','fog']}},additionalProperties:false},annotations:{readOnlyHint:false},execute:input=>{if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!['hour','weather'].includes(k)))throw new Error('Invalid input');if(input.hour!==undefined&&(!Number.isFinite(input.hour)||input.hour<0||input.hour>=24))throw new Error('Invalid hour');if(input.weather!==undefined&&!['auto','clear','rain','fog'].includes(input.weather))throw new Error('Invalid weather');if(input.hour!==undefined)chooseTime(input.hour);if(input.weather!==undefined)chooseWeather(input.weather);return state();}});window.addEventListener('pagehide',()=>lifecycle.abort(),{once:true});}

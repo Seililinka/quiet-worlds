@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ru">
+<head>
+ <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#f3eee3">
+ <title>Город рядом · тихие миры</title><meta name="description" content="Маленький живой город: уютное кафе, пекарня, соседи и звери. Мягкое пианино и повседневные звуки для спокойного радио.">
+ <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%2349695f'/%3E%3Cpath d='M11 22 24 11l13 11v16H11Z' fill='%23f3dfad'/%3E%3Cpath d='M18 24h5v6h-5Zm8 0h5v6h-5Zm-5 9h6v5h-6Z' fill='%238d694b'/%3E%3C/svg%3E">
+ <link rel="stylesheet" href="style.css?v=6"><link rel="stylesheet" href="city.css?v=6"><script type="module" src="city-app.js?v=11"></script>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+    (function(m,e,t,r,i,k,a){
+        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=113103435', 'ym');
+
+    ym(113103435, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
+</script>
+<!-- /Yandex.Metrika counter -->
+</head>
+<body class="city-page">
+<noscript><div><img src="https://mc.yandex.ru/watch/113103435" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<div class="app-shell">
+ <header class="masthead"><a class="wordmark" href="./"><span class="mark" aria-hidden="true">⌂</span><span>тихие миры<span class="wordmark-sub">маленькая жизнь, к которой можно прислушаться</span></span></a><button class="quiet-button" id="pause" aria-pressed="false">Замереть</button></header>
+ <nav class="world-navigation" aria-label="Выбрать мир"><a href="./"><span aria-hidden="true">❋</span> Лес <small>воздух и ручей</small></a><a href="castle.html"><span aria-hidden="true">♔</span> Замок <small>арфа и камин</small></a><a href="city.html" aria-current="page"><span aria-hidden="true">⌂</span> Город <small>пианино и соседи</small></a></nav>
+ <main class="world-layout">
+ <section class="world-section" aria-label="Жизнь города">
+  <div class="world-heading"><div><p class="eyebrow">МАЛЕНЬКИЙ ГОРОД · ЗНАКОМЫЕ ОКНА</p><h1>Город рядом.</h1></div><div class="world-number"><span>24</span><span>жителя</span></div></div>
+  <div class="listen-bar"><button class="listen-button" id="listen" aria-pressed="false"><span aria-hidden="true">♫</span><span id="listen-text">Слушать город</span></button><div class="volume-control"><label for="volume">Громкость <output id="volume-value">50%</output></label><input id="volume" type="range" min="0" max="100" value="50"></div></div>
+  <p class="audio-note" id="audio-note" role="status">Мягкое пианино и маленькие дела рядом. Нажми «Слушать город».</p>
+  <div class="radio-tools"><button class="radio-toggle" id="radio-mode" aria-pressed="false">Только слушать</button><label for="sleep-timer">Таймер <select id="sleep-timer"><option value="0">Без конца</option><option value="15">15 минут</option><option value="30">30 минут</option><option value="60">1 час</option><option value="120">2 часа</option></select></label><output id="timer-left"></output></div>
+  <div class="sound-scenes" role="group" aria-label="Атмосфера города">
+   <button data-preset="neighbors" aria-pressed="false"><span>Вечер с соседями</span><small>пианино · кофе · негромкие беседы</small></button>
+   <button data-preset="rain" aria-pressed="false"><span>Дождливое кафе</span><small>мягкие клавиши · чашки · капли</small></button>
+   <button data-preset="morning" aria-pressed="false"><span>Утро в пекарне</span><small>свежий хлеб · шаги · тёплый ритм</small></button>
+   <button data-preset="night" aria-pressed="false"><span>Ночные окна</span><small>редкие ноты · книга · тишина дома</small></button>
+  </div>
+  <div class="room-list" id="place-list" role="group" aria-label="Где слушать"></div>
+  <div class="scene-wrap city-scene"><div class="scene-badge"><span class="live-dot"></span><span id="scene-label">В городе вечер</span></div><canvas id="world" width="1000" height="1000" role="img" aria-label="Город с движущимися жителями и трамваем. Выбери жителя на карте или в списке под ней."></canvas><p class="scene-loading" id="scene-loading">Открываем знакомые окна…</p><button class="connections-toggle" id="paths" aria-pressed="false">Показать пути</button></div>
+  <p class="focus-description" id="focus-description">Весь квартал. Слышны маленькие дела соседей.</p>
+  <div class="city-actions"><button id="invite-coffee">Собрать соседей на кофе</button><button id="feed-pets">Угостить зверей</button></div><p class="action-note" id="interaction-note" role="status">Встречи, книги и чашка кофе. В этом квартале есть время друг для друга.</p>
+  <section class="agent-inspector" aria-labelledby="agent-heading"><div class="inspector-top"><h2 id="agent-heading">Чем занят житель</h2><select id="agent-select" aria-label="Выбрать жителя"></select></div><div class="agent-now"><span id="agent-glyph" aria-hidden="true">⌂</span><div><p id="agent-action">Читает книгу</p><p id="agent-reason">Выбрал тихий уголок.</p></div></div><div class="needs"><div><span>Сытость</span><meter id="need-food" min="0" max="1" value=".8">80%</meter></div><div><span>Силы</span><meter id="need-energy" min="0" max="1" value=".8">80%</meter></div><div><span>Уют</span><meter id="need-comfort" min="0" max="1" value=".8">80%</meter></div></div><p class="agent-memory" id="agent-memory"></p></section>
+ </section>
+ <aside class="forest-panel" aria-label="Настройки города">
+  <div class="panel-intro"><p class="eyebrow">СЕЙЧАС В КВАРТАЛЕ</p><div class="time-row"><span id="clock">18:00</span><span class="time-period" id="period">Вечер</span></div><p class="world-summary" id="world-summary">У каждого есть свои маленькие дела.</p></div>
+  <div class="weather-status"><span id="weather-symbol" aria-hidden="true">☾</span><span id="weather-description">Тихий вечер</span><span class="agent-count"><span id="awake-count">24</span> бодрствуют</span></div>
+  <section class="control-section sound-mixer"><div class="control-heading"><h2>Свой уютный звук</h2><span id="preset-name">Вечер с соседями</span></div><div class="water-choice"><label for="water-mode">Звук воды</label><select id="water-mode" aria-describedby="water-help"><option value="0">По погоде</option><option value="1">Дождь за окном</option><option value="2">Лесной водопад</option><option value="3">Морские волны</option><option value="4">Без воды</option></select><p id="water-help" class="range-help">По погоде — дождь, когда он идёт в мире. Дождь, водопад и море можно выбрать отдельно.</p></div><div class="mixer-grid" id="mixer-grid">
+<div><label for="music">Пианино и музыка <output id="music-value">52%</output></label><input id="music" type="range" min="0" max="100" value="52"></div>
+<div><label for="world-volume">Жизнь города <output id="world-volume-value">86%</output></label><input id="world-volume" type="range" min="0" max="100" value="86"></div>
+<div><label for="cafe">Чашки и дела <output id="cafe-value">88%</output></label><input id="cafe" type="range" min="0" max="100" value="88"></div>
+<div><label for="people">Встречи соседей <output id="people-value">42%</output></label><input id="people" type="range" min="0" max="100" value="42"></div>
+<div><label for="street">Двор и шаги <output id="street-value">36%</output></label><input id="street" type="range" min="0" max="100" value="36"></div>
+<div><label for="tram">Звонок трамвая <output id="tram-value">32%</output></label><input id="tram" type="range" min="0" max="100" value="32"></div>
+<div><label for="water">Громкость воды <output id="water-value">35%</output></label><input id="water" type="range" min="0" max="100" value="35"></div>
+<div><label for="pets">Мурчание <output id="pets-value">62%</output></label><input id="pets" type="range" min="0" max="100" value="62"></div>
+<div><label for="softness">Мягкость <output id="softness-value">95%</output></label><input id="softness" type="range" min="0" max="100" value="95"></div>
+<div><label for="intimacy">Близость звуков <output id="intimacy-value">87%</output></label><input id="intimacy" type="range" min="0" max="100" value="87"></div>
+<div><label for="detail">Насыщенность <output id="detail-value">44%</output></label><input id="detail" type="range" min="0" max="100" value="44"></div>
+</div><p class="range-help">«Встречи соседей» — короткие тёплые музыкальные отклики при встречах. Их громкость регулируется отдельно. Выбери место, чтобы приблизить его звуки.</p></section>
+  <section class="control-section"><div class="control-heading"><h2>Время суток</h2><span id="time-flow">время закреплено</span></div><div class="segments" role="group" aria-label="Время суток"><button data-time="8" aria-pressed="false">Утро</button><button data-time="13" aria-pressed="false">День</button><button data-time="18" aria-pressed="true">Вечер</button><button data-time="1" aria-pressed="false">Ночь</button></div><label class="check-label" for="hold-time"><input type="checkbox" id="hold-time" checked>Оставить это время суток</label></section>
+  <section class="control-section"><div class="control-heading"><h2>Погода за окнами</h2><span id="weather-mode-label">твой выбор</span></div><div class="segments" role="group" aria-label="Погода"><button data-weather="auto" aria-pressed="false">Сама</button><button data-weather="clear" aria-pressed="true">Ясно</button><button data-weather="rain" aria-pressed="false">Дождь</button><button data-weather="fog" aria-pressed="false">Туман</button></div></section>
+  <section class="control-section climate-section"><div class="control-heading"><h2>Окружение</h2><button class="text-button" id="auto-climate">Вернуть природе</button></div>
+   <label for="temperature">Температура <output id="temperature-value">18 °C</output></label><input id="temperature" type="range" min="-5" max="35" value="18">
+   <label for="wind">Ветер <output id="wind-value">1.5 м/с</output></label><input id="wind" type="range" min="0" max="12" step="0.5" value="1.5">
+   <label for="rain-level">Дождь <output id="rain-level-value">0%</output></label><input id="rain-level" type="range" min="0" max="100" value="0">
+   <label for="lights">Свет в окнах <output id="lights-value">72%</output></label><input id="lights" type="range" min="0" max="100" value="72">
+   <p class="climate-effect" id="climate-effect">За окнами тихо. Можно выйти погулять.</p>
+  </section>
+  <section class="control-section rhythm-section"><div class="control-heading"><label for="speed">Ход времени</label><output id="speed-value">Обычный</output></div><input id="speed" type="range" min="0" max="3" step="1" value="1"></section>
+  <section class="journal-section"><div class="control-heading"><h2>Маленькие события</h2><span aria-hidden="true">✧</span></div><ol class="event-list" id="events"></ol></section>
+ </aside>
+ </main>
+ <footer><span>Хорошо, когда где-то рядом идёт обычная жизнь.</span><button class="about-toggle" id="about-toggle" aria-expanded="false" aria-controls="about">Как живёт город <span aria-hidden="true">+</span></button></footer>
+ <section class="about" id="about" hidden><p>24 жителя выбирают занятия по времени суток, голоду, усталости, потребности в общении и погоде. Пекари пополняют запас хлеба, бариста готовят кофе, соседи заходят в книжную лавку, гуляют и запоминают знакомых. С 6 утра до 23 часов ходит трамвай. Ночью большинство жителей спит, а смотритель и коты продолжают свои дела.</p><p>Кнопка «Собрать соседей на кофе» запускает настоящую встречу: бариста готовят напитки, затем шесть соседей приходят за один стол. Чашки, капли кофе, касания книг и короткие шаги звучат из действий жителей, с паузами между ними. Соседи откликаются друг другу мягкими деревянными нотами, а трамвай подаёт негромкий звонок. Музыка собирается на ходу из мягкого пианино и тихого электропиано: простые мажорные мелодии плавно возвращаются к основной ноте. У леса и замка свои инструменты, гармонии и ритм.</p><p>Это стилизованный синтез: без записанных треков и настоящей человеческой речи. «Мягкость» приглушает верхние частоты, «Близость звуков» уменьшает эхо. Все слои регулируются отдельно; таймер плавно убавляет звук перед выключением.</p><p>Настройки сохраняются в этом браузере. Фоновое воспроизведение и работа при блокировке экрана зависят от браузера и устройства. Если звук прервался, вернись на страницу и нажми «Продолжить слушать».</p></section>
+</div>
+</body></html>
