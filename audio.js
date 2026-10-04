@@ -11,7 +11,7 @@ export class ForestAudio {
   if(!this.node){
    if(!this.context.audioWorklet)throw new Error('Для звука открой эту страницу в Safari или Chrome.');
    if(!this.loading)this.loading=(async()=>{
-    await this.context.audioWorklet.addModule(new URL('./forest-processor.js?v=11',import.meta.url));
+    await this.context.audioWorklet.addModule(new URL('./forest-processor.js?v=12',import.meta.url));
     this.node=new AudioWorkletNode(this.context,'forest-sound',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[2]});
     this.node.port.onmessage=({data})=>{if(data.type==='heartbeat')this.onHeartbeat?.(data);if(data.type==='sleepDone'){this.finished=true;void this.disable(true).then(()=>this.onSleep?.());}};
     this.node.onprocessorerror=()=>{this.enabled=false;this.radioTracked=false;this.onState?.(false,'Звук остановился. Обнови страницу, чтобы включить его снова.');};
@@ -20,8 +20,25 @@ export class ForestAudio {
    await this.loading;
   }
   await resumed;this.transition++;this.enabled=true;this.finished=false;this.setEnvironment(this.environment,true);this.node.port.postMessage({type:'transport',playing:true});this.setSleep(this.sleepMinutes);
+  if(this.texture.realm===0)void this.loadLeafRain();
   if(this.paused)await this.context.suspend();this.report();const running=this.context.state==='running';
   if(running&&!this.radioTracked){this.radioTracked=true;recordRadioStart(this.texture.realm);}return running;
+ }
+ async loadLeafRain(){
+  if(this.rainLoaded)return true;
+  if(this.rainLoading)return this.rainLoading;
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);
+  this.rainLoading=(async()=>{
+   const response=await fetch(new URL('./assets/forest-rain-v12.mp3',import.meta.url),{signal:controller.signal});
+   if(!response.ok)throw new Error('Rain sample unavailable');
+   const buffer=await this.context.decodeAudioData(await response.arrayBuffer());
+   // decodeAudioData resamples to the AudioContext rate before worklet transfer.
+   if(buffer.duration<3.84||buffer.duration>5)throw new Error('Invalid rain sample');
+   const channels=[new Float32Array(buffer.getChannelData(0)),new Float32Array(buffer.getChannelData(Math.min(1,buffer.numberOfChannels-1)))];
+   this.node.port.postMessage({type:'leafRainSamples',channels},channels.map(c=>c.buffer));
+   this.rainLoaded=true;return true;
+  })().catch(()=>false).finally(()=>{clearTimeout(timeout);this.rainLoading=null;});
+  return this.rainLoading;
  }
  report(){const running=this.context?.state==='running'&&this.enabled;try{if(navigator.mediaSession)navigator.mediaSession.playbackState=running?'playing':'paused';}catch{}this.onState?.(!!running);}
  async disable(finished=false){const token=++this.transition;this.enabled=false;this.radioTracked=false;this.finished=finished;this.node?.port.postMessage({type:'transport',playing:false});this.report();await new Promise(resolve=>setTimeout(resolve,260));if(token!==this.transition)return;this.node?.port.postMessage({type:'silence'});if(this.context?.state==='running')await this.context.suspend();this.report();}
