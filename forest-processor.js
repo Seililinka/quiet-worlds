@@ -111,54 +111,30 @@ class DetailNoise {
  pole(hz){return 1-Math.exp(-Math.PI*2*hz/this.sr);}
 }
 
-// Individually shaped wet leaf contacts, sampled from a generated rain source.
-// The quiet spaces in the bank are never looped as a continuous noise bed.
-// This clock and random stream are independent of the other water textures.
+// Play the complete, unedited rain recording at its original speed and stereo.
+// Only the loop seam overlaps, with a one-second equal-power crossfade.
 class LeafRainTexture extends DetailNoise {
  constructor(sr){
-  super(sr,0x714ad1b);this.t=0;this.level=0;this.target=0;this.nextDrop=.12;this.out=[0,0];this.emitted=0;this.slew=this.pole(.15);
-  this.grains=Array.from({length:16},()=>({age:1,length:0}));this.samples=null;this.lastDrop=-1;
+  super(sr);this.level=0;this.target=0;this.out=[0,0];this.slew=this.pole(.15);
+  this.samples=null;this.position=0;this.crossfade=Math.round(sr);this.fade=0;this.fadeSlew=this.pole(2);
  }
  load(channels){
-  const length=Math.round(this.sr*.16)*24;
-  if(!Array.isArray(channels)||channels.length!==2||channels.some(c=>!(c instanceof Float32Array)||c.length<length||c.length>this.sr*5))return false;
-  if(channels.some(c=>c.some(x=>!Number.isFinite(x)||Math.abs(x)>1)))return false;
-  this.samples=channels;return true;
+  // Content validation happens on the main thread, avoiding an audio-thread stall.
+  if(!Array.isArray(channels)||channels.length!==2||channels.some(c=>!(c instanceof Float32Array)||c.length<this.sr*10||c.length>this.sr*30)||channels[0].length!==channels[1].length)return false;
+  this.samples=channels;this.position=0;this.fade=0;return true;
  }
  prepare(level){this.target=level;}
  next(){
-  this.t+=this.dt;this.level+=(this.target-this.level)*this.slew;this.out[0]=this.out[1]=0;
-  if(this.level<.000001)return this.out;
-  if(this.t>=this.nextDrop){
-   const v=this.grains.find(g=>g.age>=g.length);
-   if(v){
-    const r=this.random(),pan=(this.random()-.5)*1.25,rate=.90+this.random()*.16;
-    const index=(this.lastDrop+1+Math.floor(this.random()*23))%24;this.lastDrop=index;
-    Object.assign(v,{age:0,length:this.samples ? .11/rate : .055,rate,sampled:!!this.samples,position:0,start:Math.round(index*.16*this.sr),phase:0,step:Math.PI*2*(720+r*650)/this.sr,amp:.42+r*.24,l:Math.sqrt((1-pan)*.5),r:Math.sqrt((1+pan)*.5)});this.emitted++;
-   }
-   this.nextDrop=this.t+.03-Math.log(Math.max(.001,this.random()))/(3+this.level*18);
-  }
-  for(const v of this.grains){
-   if(v.age>=v.length)continue;v.age+=this.dt;
-   if(v.sampled){
-    const i=Math.floor(v.position),fraction=v.position-i;
-    // Extra endpoint fades also remove any codec padding at a slice boundary.
-    const envelope=Math.min(1,v.age/.004,(v.length-v.age)/.008);
-    for(let c=0;c<2;c++){
-     const buffer=this.samples[c],at=v.start+i;
-     const sample=buffer[at]*(1-fraction)+buffer[at+1]*fraction;
-     this.out[c]+=sample*Math.max(0,envelope)*v.amp*this.level*(c?v.r:v.l);
-    }
-    v.position+=v.rate;
-   }else{
-    // Gentle, rapidly damped drops while the small sample bank is loading.
-    // No hiss generator, long resonance or sharp impulse in the fallback.
-    v.phase+=v.step;
-    const body=Math.sin(v.phase)*Math.exp(-v.age/.008)+.18*Math.sin(v.phase*1.73)*Math.exp(-v.age/.004);
-    const value=body*(1-Math.exp(-v.age/.0025))*(1-v.age/v.length)**2*.026*v.amp*this.level;
-    this.out[0]+=value*v.l;this.out[1]+=value*v.r;
-   }
-  }
+  this.level+=(this.target-this.level)*this.slew;this.out[0]=this.out[1]=0;
+  // Wait quietly for the approved source; never substitute synthesized ticks.
+  if(!this.samples||this.level<.000001)return this.out;
+  this.fade+=(1-this.fade)*this.fadeSlew;
+  const length=this.samples[0].length,join=length-this.crossfade;
+  if(this.position>=length)this.position=this.crossfade;
+  const at=this.position++,overlap=at>=join;
+  const angle=overlap?(at-join)/this.crossfade*Math.PI*.5:0;
+  const endGain=overlap?Math.cos(angle):1,startGain=overlap?Math.sin(angle):0;
+  for(let c=0;c<2;c++)this.out[c]=(this.samples[c][at]*endGain+(overlap?this.samples[c][at-join]*startGain:0))*this.level*this.fade;
   return this.out;
  }
 }
@@ -281,7 +257,7 @@ class ForestProcessor extends AudioWorkletProcessor {
   this.reverb=[.163,.211,.293,.337].map(seconds=>({m:new Float32Array(Math.round(seconds*this.sr)),w:new Float32Array(Math.round(seconds*this.sr)),pos:0,ml:0,wl:0}));
   this.nextHeartbeat=1;this.sleepAt=0;this.sleepDuration=0;this.transport=0;this.transportTarget=0;
   this.port.onmessage=({data:d})=>{
-   if(d.type==='leafRainSamples')this.waterEngine.leafRain.load(d.channels);
+   if(d.type==='leafRainLoop')this.waterEngine.leafRain.load(d.channels);
    if(d.type==='params'){
     for(const k of this.keys)if(Number.isFinite(d[k]))this.params[k]=Math.max(0,Math.min(1,d[k]));
     if(Number.isFinite(d.waterMode))this.params.waterMode=this.now.waterMode=Math.round(Math.max(0,Math.min(4,d.waterMode)));

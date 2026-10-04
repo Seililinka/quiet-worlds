@@ -11,7 +11,7 @@ export class ForestAudio {
   if(!this.node){
    if(!this.context.audioWorklet)throw new Error('Для звука открой эту страницу в Safari или Chrome.');
    if(!this.loading)this.loading=(async()=>{
-    await this.context.audioWorklet.addModule(new URL('./forest-processor.js?v=12',import.meta.url));
+    await this.context.audioWorklet.addModule(new URL('./forest-processor.js?v=13',import.meta.url));
     this.node=new AudioWorkletNode(this.context,'forest-sound',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[2]});
     this.node.port.onmessage=({data})=>{if(data.type==='heartbeat')this.onHeartbeat?.(data);if(data.type==='sleepDone'){this.finished=true;void this.disable(true).then(()=>this.onSleep?.());}};
     this.node.onprocessorerror=()=>{this.enabled=false;this.radioTracked=false;this.onState?.(false,'Звук остановился. Обнови страницу, чтобы включить его снова.');};
@@ -29,15 +29,16 @@ export class ForestAudio {
   if(this.rainLoading)return this.rainLoading;
   const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);
   this.rainLoading=(async()=>{
-   const response=await fetch(new URL('./assets/forest-rain-v12.mp3',import.meta.url),{signal:controller.signal});
+   const response=await fetch(new URL('./assets/forest-rain-v13.mp3',import.meta.url),{signal:controller.signal});
    if(!response.ok)throw new Error('Rain sample unavailable');
    const buffer=await this.context.decodeAudioData(await response.arrayBuffer());
    // decodeAudioData resamples to the AudioContext rate before worklet transfer.
-   if(buffer.duration<3.84||buffer.duration>5)throw new Error('Invalid rain sample');
+   if(buffer.duration<10||buffer.duration>30)throw new Error('Invalid rain sample');
    const channels=[new Float32Array(buffer.getChannelData(0)),new Float32Array(buffer.getChannelData(Math.min(1,buffer.numberOfChannels-1)))];
-   this.node.port.postMessage({type:'leafRainSamples',channels},channels.map(c=>c.buffer));
+   if(channels.some(c=>c.some(x=>!Number.isFinite(x)||Math.abs(x)>1)))throw new Error('Invalid rain data');
+   this.node.port.postMessage({type:'leafRainLoop',channels},channels.map(c=>c.buffer));
    this.rainLoaded=true;return true;
-  })().catch(()=>false).finally(()=>{clearTimeout(timeout);this.rainLoading=null;});
+  })().catch(()=>{if(this.enabled)this.onState?.(this.context?.state==='running','Не удалось загрузить дождь. Выключи и снова включи радио, чтобы повторить загрузку.');return false;}).finally(()=>{clearTimeout(timeout);this.rainLoading=null;});
   return this.rainLoading;
  }
  report(){const running=this.context?.state==='running'&&this.enabled;try{if(navigator.mediaSession)navigator.mediaSession.playbackState=running?'playing':'paused';}catch{}this.onState?.(!!running);}
