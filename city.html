@@ -17,6 +17,7 @@
     ym(113103435, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
 </script>
 <!-- /Yandex.Metrika counter -->
+<link rel="stylesheet" href="observation.css?v=16"><script type="module" src="observation.js?v=16"></script>
 </head>
 <body class="city-page">
 <noscript><div><img src="https://mc.yandex.ru/watch/113103435" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
@@ -36,15 +37,20 @@
    <button data-preset="night" aria-pressed="false"><span>Ночные окна</span><small>редкие ноты · книга · тишина дома</small></button>
   </div>
   <div class="room-list" id="place-list" role="group" aria-label="Где слушать"></div>
-  <div class="scene-wrap city-scene"><div class="scene-badge"><span class="live-dot"></span><span id="scene-label">В городе вечер</span></div><canvas id="world" width="1000" height="1000" role="img" aria-label="Город с движущимися жителями и трамваем. Выбери жителя на карте или в списке под ней."></canvas><p class="scene-loading" id="scene-loading">Открываем знакомые окна…</p><button class="connections-toggle" id="paths" aria-pressed="false">Показать пути</button></div>
+  <div class="observation-stage" id="observation"><div class="scene-column"><div class="scene-wrap city-scene"><div class="scene-badge"><span class="live-dot"></span><span id="scene-label">В городе вечер</span></div><canvas id="world" width="1000" height="1000" role="img" aria-label="Город с движущимися жителями и трамваем. Выбери жителя на карте или в панели наблюдения."></canvas><p class="scene-loading" id="scene-loading">Открываем знакомые окна…</p><button class="connections-toggle" id="paths" aria-pressed="false">Показать пути</button></div></div>
+<aside class="observation-panel" data-view="resident" aria-label="Наблюдать за жизнью">
+<div class="observation-tabs" role="group" aria-label="Что наблюдать" hidden><button type="button" data-view="resident" aria-pressed="true" aria-controls="resident-panel">Житель</button><button type="button" data-view="events" aria-pressed="false" aria-controls="journal-panel">События</button></div>
+<section id="resident-panel" class="agent-inspector" aria-labelledby="agent-heading"><div class="inspector-top"><h2 id="agent-heading">Чем занят житель</h2><select id="agent-select" aria-label="Выбрать жителя"></select></div><div class="agent-now"><span id="agent-glyph" aria-hidden="true">⌂</span><div><p id="agent-action">Читает книгу</p><p id="agent-reason">Выбрал тихий уголок.</p></div></div><div class="needs"><div><span>Сытость</span><meter id="need-food" min="0" max="1" value=".8">80%</meter></div><div><span>Силы</span><meter id="need-energy" min="0" max="1" value=".8">80%</meter></div><div><span>Уют</span><meter id="need-comfort" min="0" max="1" value=".8">80%</meter></div></div><p class="agent-memory" id="agent-memory"></p></section>
+<section id="journal-panel" class="journal-section" aria-labelledby="journal-heading"><div class="control-heading"><h2 id="journal-heading">Маленькие события</h2><span aria-hidden="true">✧</span></div><ol class="event-list" id="events"></ol></section>
+</aside></div>
   <p class="focus-description" id="focus-description">Весь квартал. Слышны маленькие дела соседей.</p>
   <div class="city-actions"><button id="invite-coffee">Собрать соседей на кофе</button><button id="feed-pets">Угостить зверей</button></div><p class="action-note" id="interaction-note" role="status">Встречи, книги и чашка кофе. В этом квартале есть время друг для друга.</p>
-  <section class="agent-inspector" aria-labelledby="agent-heading"><div class="inspector-top"><h2 id="agent-heading">Чем занят житель</h2><select id="agent-select" aria-label="Выбрать жителя"></select></div><div class="agent-now"><span id="agent-glyph" aria-hidden="true">⌂</span><div><p id="agent-action">Читает книгу</p><p id="agent-reason">Выбрал тихий уголок.</p></div></div><div class="needs"><div><span>Сытость</span><meter id="need-food" min="0" max="1" value=".8">80%</meter></div><div><span>Силы</span><meter id="need-energy" min="0" max="1" value=".8">80%</meter></div><div><span>Уют</span><meter id="need-comfort" min="0" max="1" value=".8">80%</meter></div></div><p class="agent-memory" id="agent-memory"></p></section>
+  
  </section>
- <aside class="forest-panel" aria-label="Настройки города">
+ <aside class="forest-panel" aria-label="Настройки города"><div class="environment-status">
   <div class="panel-intro"><p class="eyebrow">СЕЙЧАС В КВАРТАЛЕ</p><div class="time-row"><span id="clock">18:00</span><span class="time-period" id="period">Вечер</span></div><p class="world-summary" id="world-summary">У каждого есть свои маленькие дела.</p></div>
   <div class="weather-status"><span id="weather-symbol" aria-hidden="true">☾</span><span id="weather-description">Тихий вечер</span><span class="agent-count"><span id="awake-count">24</span> бодрствуют</span></div>
-  <section class="control-section sound-mixer"><div class="control-heading"><h2>Свой уютный звук</h2><span id="preset-name">Вечер с соседями</span></div><div class="water-choice"><label for="water-mode">Звук воды</label><select id="water-mode" aria-describedby="water-help"><option value="0">По погоде</option><option value="1">Мягкий дождь</option><option value="2">Лесной водопад</option><option value="3">Морские волны</option><option value="4">Без воды</option></select><p id="water-help" class="range-help">По погоде — дождь, когда он идёт в мире. Дождь, водопад и море можно выбрать отдельно.</p></div><div class="mixer-grid" id="mixer-grid">
+  </div><section class="control-section sound-mixer"><div class="control-heading"><h2>Свой уютный звук</h2><span id="preset-name">Вечер с соседями</span></div><div class="water-choice"><label for="water-mode">Звук воды</label><select id="water-mode" aria-describedby="water-help"><option value="0">По погоде</option><option value="1">Мягкий дождь</option><option value="2">Лесной водопад</option><option value="3">Морские волны</option><option value="4">Без воды</option></select><p id="water-help" class="range-help">По погоде — дождь, когда он идёт в мире. Дождь, водопад и море можно выбрать отдельно.</p></div><div class="mixer-grid" id="mixer-grid">
 <div><label for="music">Пианино и музыка <output id="music-value">52%</output></label><input id="music" type="range" min="0" max="100" value="52"></div>
 <div><label for="world-volume">Жизнь города <output id="world-volume-value">86%</output></label><input id="world-volume" type="range" min="0" max="100" value="86"></div>
 <div><label for="cafe">Чашки и дела <output id="cafe-value">88%</output></label><input id="cafe" type="range" min="0" max="100" value="88"></div>
@@ -67,7 +73,7 @@
    <p class="climate-effect" id="climate-effect">За окнами тихо. Можно выйти погулять.</p>
   </section>
   <section class="control-section rhythm-section"><div class="control-heading"><label for="speed">Ход времени</label><output id="speed-value">Обычный</output></div><input id="speed" type="range" min="0" max="3" step="1" value="1"></section>
-  <section class="journal-section"><div class="control-heading"><h2>Маленькие события</h2><span aria-hidden="true">✧</span></div><ol class="event-list" id="events"></ol></section>
+  
  </aside>
  </main>
  <footer><span>Хорошо, когда где-то рядом идёт обычная жизнь.</span><button class="about-toggle" id="about-toggle" aria-expanded="false" aria-controls="about">Как живёт город <span aria-hidden="true">+</span></button></footer>

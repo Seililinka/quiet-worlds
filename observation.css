@@ -1,0 +1,134 @@
+/* The world, its residents and its journal share one observation area. */
+.app-shell .world-layout { display:block; }
+.observation-stage {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 330px;
+  gap:24px;
+  align-items:start;
+  margin:0 0 18px;
+  scroll-margin-top:16px;
+}
+.scene-column { min-width:0; position:sticky; top:16px; }
+.observation-stage .scene-wrap {
+  margin:0 auto;
+  max-width:calc(100svh - 32px);
+}
+.observation-panel {
+  min-width:0;
+  position:sticky;
+  top:16px;
+  max-height:calc(100svh - 32px);
+  overflow:auto;
+  scrollbar-width:thin;
+  scrollbar-color:var(--muted) transparent;
+  display:grid;
+  gap:14px;
+}
+.observation-panel .agent-inspector {
+  margin:0;
+  padding:18px;
+}
+.observation-panel .inspector-top { flex-direction:column; align-items:stretch; gap:10px; }
+.observation-panel .inspector-top h2 { font-size:14px; }
+.observation-panel .inspector-top select { width:100%; max-width:100%; min-height:42px; font-size:16px; }
+.observation-panel .agent-now { gap:10px; margin:14px 0; align-items:flex-start; }
+.observation-panel .agent-now p { font-size:15px; line-height:1.5; }
+.observation-panel .agent-now>span { width:35px; height:35px; font-size:25px; border-radius:10px; }
+.observation-panel #agent-reason { font-size:13px; line-height:1.55; }
+.observation-panel .needs { gap:10px; }
+.observation-panel .needs>div { font-size:12px; }
+.observation-panel .agent-memory { font-size:13px; line-height:1.55; margin-top:12px; }
+.observation-panel .journal-section {
+  margin:0;
+  padding:18px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:var(--paper);
+}
+.observation-panel .control-heading { align-items:center; }
+.observation-panel .control-heading h2 { font-size:14px; }
+.observation-panel .event-list { min-height:0; }
+.observation-panel .event-list li { font-size:13px; line-height:1.6; grid-template-columns:36px 1fr; gap:8px; padding:8px 0; }
+.observation-panel .event-list li+li { border-top:1px solid var(--line); }
+.observation-panel .event-list [role=button]:focus-visible { outline-offset:1px; border-radius:5px; }
+.observation-tabs { display:none; }
+.app-shell .forest-panel {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:28px;
+  padding:28px 0 0;
+  margin:30px 0 0;
+  border-left:0;
+  border-top:1px solid var(--line);
+  align-items:start;
+}
+.forest-panel .environment-status { min-width:0; }
+.forest-panel .environment-status .time-row { position:static; margin:8px 0 0; }
+.forest-panel .world-summary { max-width:none; }
+.forest-panel .control-section { padding-top:0; }
+.forest-panel .sound-mixer { grid-column:span 2; }
+.forest-panel .rhythm-section { grid-column:auto; }
+.forest-panel .climate-section { grid-column:auto; }
+.forest-panel .forest-note { grid-column:1/-1; margin-top:0; }
+.world-section>.listen-bar { max-width:880px; }
+.world-section>.sound-scenes { grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); }
+.radio-mode .observation-panel { display:none; }
+.radio-mode .observation-stage { grid-template-columns:minmax(0,1fr); }
+
+@media(max-width:1100px) and (min-width:781px) {
+  .observation-stage { grid-template-columns:minmax(0,1fr) 300px; gap:18px; }
+  .app-shell .forest-panel { grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; }
+  .forest-panel .sound-mixer { grid-column:auto; }
+}
+
+@media(max-width:780px) {
+  .observation-stage { display:block; margin-bottom:18px; scroll-margin-top:8px; }
+  .scene-column { position:relative; top:auto; }
+  .observation-stage .scene-wrap { max-width:min(100%, max(220px, calc(100svh - 286px))); }
+  .observation-panel {
+    position:static;
+    max-height:none;
+    overflow:visible;
+    display:block;
+    margin-top:12px;
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:var(--paper);
+  }
+  .observation-tabs {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:4px;
+    padding:4px;
+    border-bottom:1px solid var(--line);
+  }
+  .observation-tabs button { min-height:40px; border-radius:11px; padding:8px; background:transparent; color:var(--muted); font-size:14px; }
+  .observation-tabs button[aria-pressed=true] { background:var(--line); color:var(--ink); }
+  .observation-panel .agent-inspector,
+  .observation-panel .journal-section {
+    height:218px;
+    overflow-y:auto;
+    overscroll-behavior-y:contain;
+    scrollbar-width:thin;
+    margin:0;
+    padding:12px 14px;
+    border:0;
+    border-radius:0 0 15px 15px;
+  }
+  .observation-panel:has(.observation-tabs:not([hidden]))[data-view=resident] .journal-section,
+  .observation-panel:has(.observation-tabs:not([hidden]))[data-view=events] .agent-inspector { display:none; }
+  .observation-panel .inspector-top { display:block; }
+  .observation-panel .inspector-top h2 { display:none; }
+  .observation-panel .inspector-top select { min-height:38px; padding:7px 9px; }
+  .observation-panel .agent-now { margin:10px 0; }
+  .observation-panel .agent-now>span { width:30px; height:30px; font-size:23px; }
+  .observation-panel .agent-now p { font-size:14px; line-height:1.45; }
+  .observation-panel #agent-reason { font-size:12px; line-height:1.45; }
+  .observation-panel .agent-memory { font-size:12px; margin:10px 0 0; line-height:1.45; }
+  .observation-panel .event-list li { font-size:13px; }
+  .observation-panel .journal-section .control-heading { margin-bottom:2px; }
+  .app-shell .forest-panel { grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px 18px; padding-top:24px; }
+  .forest-panel .environment-status,.forest-panel .sound-mixer,.forest-panel .climate-section,.forest-panel .rhythm-section { grid-column:1/-1; }
+  .world-section>.sound-scenes { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .radio-mode .observation-stage .scene-wrap { max-width:100%; }
+}
