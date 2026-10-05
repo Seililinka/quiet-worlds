@@ -22,3 +22,6 @@
 @media(max-width:780px){.world-navigation{grid-template-columns:repeat(3,minmax(0,1fr))}.world-navigation a{padding:10px 5px;justify-content:center;font-size:14px}.world-navigation small{padding-left:0;text-align:center;font-size:10px;line-height:1.4}.world-navigation a>span{font-size:17px}}
 
 .water-choice{display:grid;grid-template-columns:1fr;gap:8px;margin:0 0 18px}.water-choice>label{font-size:14px;color:var(--ink)}.water-choice select{width:100%;min-height:44px;padding:10px 12px;font:inherit;font-size:16px;border:1px solid var(--line);border-radius:10px;color:var(--ink);background:var(--paper)}.water-choice .range-help{font-size:13px;line-height:1.6;margin:0;color:var(--muted)}
+
+/* Four worlds stay equally reachable on a phone. */
+@media(max-width:780px){.world-navigation{grid-template-columns:repeat(2,minmax(0,1fr))}}
