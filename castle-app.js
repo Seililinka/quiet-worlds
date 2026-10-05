@@ -1,10 +1,11 @@
 import {CastleWorld,ROOMS,ROLES,TASKS} from './castle-world.js?v=6';
-import {CastleRenderer} from './castle-renderer.js?v=8';
-import {ForestAudio} from './audio.js?v=11';
+import {CastleRenderer} from './castle-renderer.js?v=14';
+import {ForestAudio} from './audio.js?v=14';
 import {formatClock} from './ecosystem.js?v=3';
 const $=id=>document.getElementById(id),STORAGE='quiet-castle-v1',speeds=[.5,1,2,4];let saved=null;try{saved=JSON.parse(localStorage.getItem(STORAGE));}catch{}
 const defaults={volume:50,music:32,'world-volume':85,fire:65,paper:80,fabric:70,pets:72,water:30,softness:94,intimacy:90,detail:45};
 const presets={
+ coast:{name:'Океан у стен',waterMode:3,hour:17,focus:'courtyard',temperature:20,wind:2,rain:0,candles:65,mix:{music:25,'world-volume':85,fire:25,paper:45,fabric:45,pets:65,water:45,softness:96,intimacy:85,detail:32}},
  hearth:{name:'Камин и бархат',waterMode:0,hour:19,focus:'hall',temperature:18,wind:1.5,rain:0,candles:80,mix:{music:30,'world-volume':85,fire:80,paper:65,fabric:78,pets:90,water:30,softness:95,intimacy:92,detail:48}},
  library:{name:'Дождь в библиотеке',waterMode:0,hour:16,focus:'library',temperature:16,wind:3,rain:.62,candles:65,mix:{music:22,'world-volume':90,fire:45,paper:95,fabric:45,pets:45,water:55,softness:94,intimacy:95,detail:55}},
  night:{name:'Сон замка',waterMode:0,hour:1,focus:'all',temperature:12,wind:1.5,rain:.2,candles:42,mix:{music:18,'world-volume':76,fire:75,paper:30,fabric:40,pets:80,water:30,softness:98,intimacy:90,detail:20}},

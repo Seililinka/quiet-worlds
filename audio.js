@@ -11,7 +11,7 @@ export class ForestAudio {
   if(!this.node){
    if(!this.context.audioWorklet)throw new Error('Для звука открой эту страницу в Safari или Chrome.');
    if(!this.loading)this.loading=(async()=>{
-    await this.context.audioWorklet.addModule(new URL('./forest-processor.js?v=13',import.meta.url));
+    await this.context.audioWorklet.addModule(new URL('./forest-processor.js?v=14',import.meta.url));
     this.node=new AudioWorkletNode(this.context,'forest-sound',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[2]});
     this.node.port.onmessage=({data})=>{if(data.type==='heartbeat')this.onHeartbeat?.(data);if(data.type==='sleepDone'){this.finished=true;void this.disable(true).then(()=>this.onSleep?.());}};
     this.node.onprocessorerror=()=>{this.enabled=false;this.radioTracked=false;this.onState?.(false,'Звук остановился. Обнови страницу, чтобы включить его снова.');};
@@ -20,7 +20,7 @@ export class ForestAudio {
    await this.loading;
   }
   await resumed;this.transition++;this.enabled=true;this.finished=false;this.setEnvironment(this.environment,true);this.node.port.postMessage({type:'transport',playing:true});this.setSleep(this.sleepMinutes);
-  if(this.texture.realm===0)void this.loadLeafRain();
+  if(this.texture.realm===0||this.texture.realm===2)void this.loadLeafRain();
   if(this.paused)await this.context.suspend();this.report();const running=this.context.state==='running';
   if(running&&!this.radioTracked){this.radioTracked=true;recordRadioStart(this.texture.realm);}return running;
  }

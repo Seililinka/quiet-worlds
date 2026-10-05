@@ -4,7 +4,7 @@
  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#f3eee3">
  <title>Город рядом · тихие миры</title><meta name="description" content="Маленький живой город: уютное кафе, пекарня, соседи и звери. Мягкое пианино и повседневные звуки для спокойного радио.">
  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%2349695f'/%3E%3Cpath d='M11 22 24 11l13 11v16H11Z' fill='%23f3dfad'/%3E%3Cpath d='M18 24h5v6h-5Zm8 0h5v6h-5Zm-5 9h6v5h-6Z' fill='%238d694b'/%3E%3C/svg%3E">
- <link rel="stylesheet" href="style.css?v=6"><link rel="stylesheet" href="city.css?v=6"><script type="module" src="city-app.js?v=11"></script>
+ <link rel="stylesheet" href="style.css?v=6"><link rel="stylesheet" href="city.css?v=6"><script type="module" src="city-app.js?v=14"></script>
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
     (function(m,e,t,r,i,k,a){
@@ -44,7 +44,7 @@
  <aside class="forest-panel" aria-label="Настройки города">
   <div class="panel-intro"><p class="eyebrow">СЕЙЧАС В КВАРТАЛЕ</p><div class="time-row"><span id="clock">18:00</span><span class="time-period" id="period">Вечер</span></div><p class="world-summary" id="world-summary">У каждого есть свои маленькие дела.</p></div>
   <div class="weather-status"><span id="weather-symbol" aria-hidden="true">☾</span><span id="weather-description">Тихий вечер</span><span class="agent-count"><span id="awake-count">24</span> бодрствуют</span></div>
-  <section class="control-section sound-mixer"><div class="control-heading"><h2>Свой уютный звук</h2><span id="preset-name">Вечер с соседями</span></div><div class="water-choice"><label for="water-mode">Звук воды</label><select id="water-mode" aria-describedby="water-help"><option value="0">По погоде</option><option value="1">Дождь за окном</option><option value="2">Лесной водопад</option><option value="3">Морские волны</option><option value="4">Без воды</option></select><p id="water-help" class="range-help">По погоде — дождь, когда он идёт в мире. Дождь, водопад и море можно выбрать отдельно.</p></div><div class="mixer-grid" id="mixer-grid">
+  <section class="control-section sound-mixer"><div class="control-heading"><h2>Свой уютный звук</h2><span id="preset-name">Вечер с соседями</span></div><div class="water-choice"><label for="water-mode">Звук воды</label><select id="water-mode" aria-describedby="water-help"><option value="0">По погоде</option><option value="1">Мягкий дождь</option><option value="2">Лесной водопад</option><option value="3">Морские волны</option><option value="4">Без воды</option></select><p id="water-help" class="range-help">По погоде — дождь, когда он идёт в мире. Дождь, водопад и море можно выбрать отдельно.</p></div><div class="mixer-grid" id="mixer-grid">
 <div><label for="music">Пианино и музыка <output id="music-value">52%</output></label><input id="music" type="range" min="0" max="100" value="52"></div>
 <div><label for="world-volume">Жизнь города <output id="world-volume-value">86%</output></label><input id="world-volume" type="range" min="0" max="100" value="86"></div>
 <div><label for="cafe">Чашки и дела <output id="cafe-value">88%</output></label><input id="cafe" type="range" min="0" max="100" value="88"></div>

@@ -1,5 +1,6 @@
 import {PLACES,ROLES} from './city-world.js?v=6';
 import {drawLitScene,drawSelectedName} from './scene-effects.js?v=8';
+import {drawCityWetGround,drawCityRain} from './weather-scenes.js?v=14';
 export class CityRenderer{
  constructor(canvas,world){this.canvas=canvas;this.world=world;this.ctx=canvas.getContext('2d');this.image=new Image();this.image.src=new URL('./assets/city.webp',import.meta.url);this.ready=this.image.decode();this.reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;this.dpr=Math.min(window.devicePixelRatio||1,1.75);this.showPaths=false;this.width=0;this.height=0;this.observer=new ResizeObserver(()=>this.resize());this.observer.observe(canvas);this.resize();}
  resize(){const r=this.canvas.getBoundingClientRect();this.width=r.width;this.height=r.height;this.canvas.width=Math.round(r.width*this.dpr);this.canvas.height=Math.round(r.height*this.dpr);this.ctx.setTransform(this.dpr,0,0,this.dpr,0,0);this.size=Math.min(r.width,r.height);this.ox=(r.width-this.size)/2;this.oy=(r.height-this.size)/2;}
@@ -9,6 +10,7 @@ export class CityRenderer{
  render(){
   const c=this.ctx,w=this.world;if(!this.size||!this.image.complete||!this.image.naturalWidth)return;c.clearRect(0,0,this.width,this.height);c.fillStyle='#315c88';c.fillRect(0,0,this.width,this.height);
   drawLitScene(this,w,[{x:.452,y:.165,s:.065,power:w.lights},{x:.504,y:.15,s:.065,power:w.lights},{x:.253,y:.255,s:.09,power:w.lights},{x:.369,y:.245,s:.09,power:w.lights},{x:.132,y:.46,s:.13,power:w.lights},{x:.29,y:.575,s:.13,power:w.lights},{x:.773,y:.35,s:.13,power:w.lights},{x:.911,y:.50,s:.08,power:w.lights},{x:.616,y:.511,s:.08,power:w.lights},{x:.752,y:.667,s:.08,power:w.lights},{x:.526,y:.666,s:.08,power:w.lights}],.28);
+  drawCityWetGround(this,w);
   if(w.temperature<5){c.fillStyle='rgba(147,187,218,.06)';c.fillRect(0,0,this.width,this.height);}
   const focus=PLACES.find(r=>r.id===w.focus);
   if(focus){const p=this.point(focus.x,focus.y);c.save();c.strokeStyle='#f2d299ba';c.lineWidth=1.3;c.setLineDash([3,6]);c.beginPath();c.ellipse(p.x,p.y,this.size*.085,this.size*.05,0,0,Math.PI*2);c.stroke();c.restore();}
@@ -16,7 +18,7 @@ export class CityRenderer{
   if(this.showPaths)for(const a of w.agents){if(!a.path.length)continue;c.save();c.strokeStyle=a.id===w.selectedId?'#f0d99ba8':'#dfd3b33b';c.lineWidth=1;c.setLineDash([3,5]);let p=this.point(a.x,a.y);c.beginPath();c.moveTo(p.x,p.y);for(const step of a.path){p=this.point(step.x,step.y);c.lineTo(p.x,p.y);}c.stroke();c.restore();}
   if(this.showPaths)for(const edge of w.connections){const a=w.agents[edge.a],b=w.agents[edge.b],p=this.point(a.x,a.y),q=this.point(b.x,b.y);c.strokeStyle=`rgba(237,199,150,${Math.max(0,1-(w.elapsed-edge.born)/4)*.5})`;c.beginPath();c.moveTo(p.x,p.y);c.quadraticCurveTo((p.x+q.x)/2,(p.y+q.y)/2-12,q.x,q.y);c.stroke();}
   for(const a of [...w.agents].sort((a,b)=>a.y-b.y))this.drawAgent(a);
-  if(!this.reduced&&w.rain>.02){c.save();c.beginPath();c.rect(this.width*.30,this.height*.35,this.width*.40,this.height*.35);c.rect(this.width*.06,this.height*.62,this.width*.83,this.height*.31);c.clip();c.strokeStyle=`rgba(190,216,231,${w.rain*.32})`;c.lineWidth=.7;for(let i=0;i<Math.floor(w.rain*90);i++){const x=(i*131+w.elapsed*(18+w.wind*25))%(this.width+50)-25,y=(i*83+w.elapsed*(120+i%30))%this.height;c.beginPath();c.moveTo(x,y);c.lineTo(x+2+w.wind*6,y+7);c.stroke();}c.restore();}
+  drawCityRain(this,w);
   if(w.fog>.05){const g=c.createLinearGradient(0,this.height*.55,0,this.height);g.addColorStop(0,'rgba(168,187,203,0)');g.addColorStop(1,`rgba(168,187,203,${w.fog*.27})`);c.fillStyle=g;c.fillRect(0,0,this.width,this.height);}
   const selected=w.selected;if(selected){const p=this.point(selected.x,selected.y),size=Math.max(7,Math.min(11,this.size*.016));p.y-=size*.8;drawSelectedName(c,selected.name,p,this.width,this.height);}
  }

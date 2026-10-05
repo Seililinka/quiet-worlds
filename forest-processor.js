@@ -9,7 +9,8 @@ class WaterTexture {
  random(){let x=this.seed;x^=x<<13;x^=x>>>17;x^=x<<5;this.seed=x>>>0;return this.seed/4294967296;}
  prepare(p){
   const mode=p.waterMode;this.rainAmount=mode===0?p.rain:mode===1?.55+p.rain*.4:0;
-  this.leafRain.prepare(p.realm===0?this.rainAmount:0);this.target[0]=p.realm===0?0:this.rainAmount;this.target[1]=mode===2?1:0;this.target[2]=mode===3?1:0;this.inside=p.inside;
+  const recordedRain=p.realm===0||p.realm===2;
+  this.leafRain.prepare(recordedRain?this.rainAmount:0);this.target[0]=recordedRain?0:this.rainAmount;this.target[1]=mode===2?1:0;this.target[2]=mode===3?1:0;this.inside=p.inside;
  }
  grain(kind){
   const v=this.grains[this.slot++%this.grains.length],r=this.random(),pan=(this.random()-.5)*1.5;

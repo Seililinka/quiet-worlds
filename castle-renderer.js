@@ -1,7 +1,8 @@
 import {ROOMS,ROLES} from './castle-world.js?v=6';
 import {drawLitScene,drawSelectedName} from './scene-effects.js?v=8';
+import {drawCoastalWater} from './weather-scenes.js?v=14';
 export class CastleRenderer{
- constructor(canvas,world){this.canvas=canvas;this.world=world;this.ctx=canvas.getContext('2d');this.image=new Image();this.image.src=new URL('./assets/castle.webp',import.meta.url);this.ready=this.image.decode();this.reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;this.dpr=Math.min(window.devicePixelRatio||1,1.75);this.showPaths=false;this.width=0;this.height=0;this.observer=new ResizeObserver(()=>this.resize());this.observer.observe(canvas);this.resize();}
+ constructor(canvas,world){this.canvas=canvas;this.world=world;this.ctx=canvas.getContext('2d');this.image=new Image();this.image.src=new URL('./assets/castle-coast-v14.webp',import.meta.url);this.ready=this.image.decode();this.reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;this.dpr=Math.min(window.devicePixelRatio||1,1.75);this.showPaths=false;this.width=0;this.height=0;this.observer=new ResizeObserver(()=>this.resize());this.observer.observe(canvas);this.resize();}
  resize(){const r=this.canvas.getBoundingClientRect();this.width=r.width;this.height=r.height;this.canvas.width=Math.round(r.width*this.dpr);this.canvas.height=Math.round(r.height*this.dpr);this.ctx.setTransform(this.dpr,0,0,this.dpr,0,0);this.size=Math.min(r.width,r.height);this.ox=(r.width-this.size)/2;this.oy=(r.height-this.size)/2;}
  point(x,y){return{x:this.ox+x*this.size,y:this.oy+y*this.size};}
  pointer(x,y){const r=this.canvas.getBoundingClientRect();return{x:(x-r.left-this.ox)/this.size,y:(y-r.top-this.oy)/this.size};}
@@ -9,6 +10,7 @@ export class CastleRenderer{
  render(){
   const c=this.ctx,w=this.world;if(!this.size||!this.image.complete||!this.image.naturalWidth)return;c.clearRect(0,0,this.width,this.height);c.fillStyle='#17202c';c.fillRect(0,0,this.width,this.height);
   drawLitScene(this,w,[{x:.508,y:.30,s:.13,power:w.fireplace,fire:true},{x:.23,y:.17,s:.16,power:w.candles},{x:.51,y:.14,s:.12,power:w.candles},{x:.78,y:.21,s:.16,power:w.candles},{x:.21,y:.45,s:.13,power:w.candles},{x:.49,y:.41,s:.20,power:w.candles},{x:.81,y:.40,s:.13,power:w.candles},{x:.40,y:.77,s:.055,power:w.candles},{x:.69,y:.76,s:.055,power:w.candles}],.72);
+  drawCoastalWater(this,w);
   if(w.temperature<5){c.fillStyle='rgba(147,187,218,.06)';c.fillRect(0,0,this.width,this.height);}
   const focus=ROOMS.find(r=>r.id===w.focus);
   if(focus){const p=this.point(focus.x,focus.y);c.save();c.strokeStyle='#f2d299ba';c.lineWidth=1.3;c.setLineDash([3,6]);c.beginPath();c.ellipse(p.x,p.y,this.size*.085,this.size*.05,0,0,Math.PI*2);c.stroke();c.restore();}

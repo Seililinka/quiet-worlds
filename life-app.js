@@ -1,5 +1,5 @@
 import {Ecosystem,formatClock,SPECIES,ACTIONS} from './ecosystem.js?v=3';
-import {ForestAudio} from './audio.js?v=13';
+import {ForestAudio} from './audio.js?v=14';
 import {LifeRenderer} from './life-renderer.js?v=8';
 const $=id=>document.getElementById(id),STORAGE='forest-world-v1',speeds=[.5,1,2,4];let saved=null;try{saved=JSON.parse(localStorage.getItem(STORAGE));}catch{}
 const mixDefaults={volume:50,music:72,'world-volume':65,water:35,leaves:50,calls:24,softness:92,intimacy:85,detail:30};
